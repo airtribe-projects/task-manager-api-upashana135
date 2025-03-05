@@ -20,15 +20,12 @@ app.get("/", (req, res)=>{
   })
 
 const validator = (req, res, next)=>{
-    const {title, description, completed, priority} = req.body
-    if(!title || !description || completed === undefined || !priority){
+    const {title, description, completed} = req.body
+    if(!title || !description || completed === undefined){
         return res.status(400).send("Missing required fields!")
     }
     if(typeof completed !== 'boolean'){
         return res.status(400).send("Completed field must be boolean!")
-    }
-    if((priority !== "high") && (priority !== "low") && (priority !== "medium")){
-        return res.status(400).send("Priority can be high/low/medium only!")
     }
     next();
 }
@@ -79,12 +76,22 @@ app.get("/tasks/:id", (req, res)=>{
 // Create a new task with the required fields (title, description, completed, priority).
 app.post("/tasks", [validator], (req, res) => {
     const {title, description, completed, priority} = req.body
-    const newTask = {
-        id: taskList.length ? taskList[taskList.length-1].id+1 : 1,
-        title,
-        description,
-        completed,
-        priority
+    let newTask = {}
+    if(priority){
+        newTask = {
+            id: taskList.length ? taskList[taskList.length-1].id+1 : 1,
+            title,
+            description,
+            completed,
+            priority
+        }
+    }else{
+        newTask = {
+            id: taskList.length ? taskList[taskList.length-1].id+1 : 1,
+            title,
+            description,
+            completed
+        }
     }
     taskList.push(newTask)
     return res.status(201).send("New tasks added!")
